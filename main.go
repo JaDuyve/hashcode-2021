@@ -12,6 +12,9 @@ func main() {
 	input, _ := ioutil.ReadFile("input/" + filename)
 	sim := NewSimulation(strings.Split(string(input), "\n"))
 
-	fmt.Print(sim)
+	sim.OptimizeSchedule()
+	sim.Simulate()
+	fmt.Printf("Score: [%d]\n", sim.CalculateScore())
+
 	sim.SaveSchedule(filename)
 }

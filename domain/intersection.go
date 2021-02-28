@@ -2,20 +2,55 @@ package domain
 
 import "fmt"
 
-type Pair struct {
-	a string
-	b int
-}
-
 type Intersection struct {
 	id                 int
-	streets            []Pair
+	streets            []Street
+	streetMap          map[string]int
 	currentGreenStreet int
 	switchLightTick    int
 }
 
-func (i *Intersection) addStreet(streetName string) {
-	i.streets = append(i.streets, Pair{streetName, 1})
+func (i *Intersection) addStreet(street Street) {
+	street.greenLightDuration = 1
+	i.streets = append(i.streets, street)
+}
+
+func (i *Intersection) simulateTick(tick int) {
+	if i.switchLightTick == tick {
+		i.currentGreenStreet = (i.currentGreenStreet + 1) % len(i.streets)
+		i.switchLightTick = tick + i.streets[i.currentGreenStreet].greenLightDuration
+	}
+}
+
+func (i *Intersection) mapStreets() {
+	i.streetMap = make(map[string]int)
+
+	for index, street := range i.streets {
+		i.streetMap[street.name] = index
+	}
+}
+
+func (i *Intersection) setCurrentSwitchLightTick() {
+	i.switchLightTick = i.streets[i.currentGreenStreet].greenLightDuration
+}
+
+func (i Intersection) isStreetGreen(streetName string) bool {
+	return i.streets[i.currentGreenStreet].name == streetName
+}
+
+func (i *Intersection) moveCar(car Car) bool {
+	if i.streetMap[car.getCurrentStreetName()] != i.currentGreenStreet {
+		return false
+	}
+
+	street := i.streets[i.currentGreenStreet]
+	return street.moveCarOut(car.id)
+}
+
+func (i *Intersection) addCarToQueue(car Car) {
+	if streetIndex, exists := i.streetMap[car.getCurrentStreetName()]; exists {
+		i.streets[streetIndex].addCar(car.id)
+	}
 }
 
 func (i Intersection) String() string {
@@ -31,15 +66,9 @@ func (i Intersection) toSubmissionFormat() string {
 		i.id,
 		len(i.streets))
 
-	for _, pair := range i.streets {
-		output += pair.toSubmissionFormat()
+	for _, street := range i.streets {
+		output += street.toSubmissionFormat()
 	}
 
 	return output
-}
-
-func (p Pair) toSubmissionFormat() string {
-	return fmt.Sprintf("%s %d\n",
-		p.a,
-		p.b)
 }

@@ -16,7 +16,8 @@ type Simulation struct {
 	numberOfCars          int
 	bonus                 int
 	intersections         []Intersection
-	streets               []Street
+	streets               map[string]Street
+	streetIntersectionMap map[string]int
 	cars                  []Car
 }
 
@@ -45,20 +46,11 @@ func NewSimulation(input []string) *Simulation {
 }
 
 func (s *Simulation) addStreets(input []string) {
-	s.streets = make([]Street, 0, len(input))
+	s.streets = make(map[string]Street)
 
 	for _, line := range input {
-		values := strings.Split(line, " ")
-		startIntersectionId, _ := strconv.Atoi(values[0])
-		endIntersectionId, _ := strconv.Atoi(values[1])
-		duration, _ := strconv.Atoi(values[3])
-
-		s.streets = append(s.streets, Street{
-			startIntersectionId: startIntersectionId,
-			endIntersectionId:   endIntersectionId,
-			name:                values[2],
-			duration:            duration,
-		})
+		street := NewStreet(line)
+		s.streets[street.name] = street
 	}
 }
 
@@ -66,26 +58,84 @@ func (s *Simulation) addCars(input []string) {
 	s.cars = make([]Car, 0, len(input))
 
 	for index, line := range input {
-		values := strings.Split(line, " ")
-		numberOfStreets, _ := strconv.Atoi(values[0])
-
-		s.cars = append(s.cars, Car{
-			id:                 index,
-			numberOfStreets:    numberOfStreets,
-			route:              values[1:],
-			currentStreetIndex: 0,
-			leaveStreetTick:    0,
-		})
+		s.cars = append(s.cars, NewCar(line, index))
 	}
 }
 
 func (s *Simulation) mapIntersections() {
 	s.intersections = make([]Intersection, s.numberOfIntersections)
+	s.streetIntersectionMap = make(map[string]int)
+
+	for _, car := range s.cars {
+		street := s.streets[car.getCurrentStreetName()]
+		street.addCar(car.id)
+	}
 
 	for _, street := range s.streets {
 		s.intersections[street.endIntersectionId].id = street.endIntersectionId
-		s.intersections[street.endIntersectionId].addStreet(street.name)
+		s.intersections[street.endIntersectionId].addStreet(street)
+
+		s.streetIntersectionMap[street.name] = street.endIntersectionId
 	}
+
+	for _, intersection := range s.intersections {
+		intersection.mapStreets()
+	}
+}
+
+func (s *Simulation) OptimizeSchedule() {
+	for _, intersection := range s.intersections {
+		intersection.setCurrentSwitchLightTick()
+	}
+}
+
+func (s *Simulation) Simulate() {
+	fmt.Println("Start Simulation")
+
+	for i := 0; i < s.duration; i++ {
+		s.simulateIntersections(i)
+		s.simulateCars(i)
+	}
+
+	fmt.Println("End Simulation")
+}
+
+func (s *Simulation) simulateIntersections(tick int) {
+	for _, intersection := range s.intersections {
+		intersection.simulateTick(tick)
+	}
+}
+
+func (s *Simulation) simulateCars(tick int) {
+	for _, car := range s.cars {
+		intersectionIndex := s.streetIntersectionMap[car.getCurrentStreetName()]
+
+		switch car.state {
+		case Waiting:
+			fmt.Printf("Car with id [%d] is Waiting.\n", car.id)
+			if s.intersections[intersectionIndex].moveCar(car) {
+				car.move(tick, s.streets)
+			}
+		case Driving:
+			fmt.Printf("Car with id [%d] is Driving.\n", car.id)
+			if car.atEndOfStreet(tick) {
+				car.state = Waiting
+
+			}
+		}
+	}
+}
+
+func (s Simulation) CalculateScore() int {
+	var score int
+
+	for _, car := range s.cars {
+		if car.state == Finished {
+			score += s.bonus + car.finishedAt
+		}
+	}
+
+	return score
 }
 
 func (s Simulation) SaveSchedule(filename string) {
