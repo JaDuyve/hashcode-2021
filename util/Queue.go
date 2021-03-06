@@ -28,12 +28,12 @@ func (q *Queue) Dequeue() {
 	q.queue.Remove(ele)
 }
 
-func (q *Queue) Front() interface{} {
+func (q Queue) Front() interface{} {
 	if q.Empty() {
 		log.Fatal("Front error: Queue was empty")
 	}
 
-	return q.queue.Front()
+	return q.queue.Front().Value
 }
 
 func (q Queue) size() int {

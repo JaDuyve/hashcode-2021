@@ -78,14 +78,14 @@ func (s *Simulation) mapIntersections() {
 		s.streetIntersectionMap[street.name] = street.endIntersectionId
 	}
 
-	for _, intersection := range s.intersections {
-		intersection.mapStreets()
+	for index := 0; index < len(s.intersections); index++ {
+		s.intersections[index].mapStreets()
 	}
 }
 
 func (s *Simulation) OptimizeSchedule() {
-	for _, intersection := range s.intersections {
-		intersection.setCurrentSwitchLightTick()
+	for i := 0; i < len(s.intersections); i++ {
+		s.intersections[i].setCurrentSwitchLightTick()
 	}
 }
 
@@ -101,26 +101,26 @@ func (s *Simulation) Simulate() {
 }
 
 func (s *Simulation) simulateIntersections(tick int) {
-	for _, intersection := range s.intersections {
-		intersection.simulateTick(tick)
+	for i := 0; i < len(s.intersections); i++ {
+		s.intersections[i].simulateTick(tick)
 	}
 }
 
 func (s *Simulation) simulateCars(tick int) {
-	for _, car := range s.cars {
+	for index, car := range s.cars {
 		intersectionIndex := s.streetIntersectionMap[car.getCurrentStreetName()]
 
 		switch car.state {
 		case Waiting:
 			fmt.Printf("Car with id [%d] is Waiting.\n", car.id)
 			if s.intersections[intersectionIndex].moveCar(car) {
-				car.move(tick, s.streets)
+				s.cars[index].move(tick, s.streets)
 			}
 		case Driving:
 			fmt.Printf("Car with id [%d] is Driving.\n", car.id)
 			if car.atEndOfStreet(tick) {
-				car.state = Waiting
-
+				s.cars[index].state = Waiting
+				s.intersections[intersectionIndex].addCarToQueue(car)
 			}
 		}
 	}

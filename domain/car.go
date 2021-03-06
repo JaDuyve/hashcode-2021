@@ -35,7 +35,7 @@ func NewCar(input string, id int) Car {
 		currentStreetIndex: 0,
 		leaveStreetTick:    0,
 		finishedAt:         -1,
-		state:              Waiting,
+		state:              Driving,
 	}
 }
 

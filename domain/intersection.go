@@ -43,8 +43,7 @@ func (i *Intersection) moveCar(car Car) bool {
 		return false
 	}
 
-	street := i.streets[i.currentGreenStreet]
-	return street.moveCarOut(car.id)
+	return i.streets[i.currentGreenStreet].moveCarOut(car.id)
 }
 
 func (i *Intersection) addCarToQueue(car Car) {
