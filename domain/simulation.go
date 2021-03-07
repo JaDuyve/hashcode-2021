@@ -109,7 +109,7 @@ func (s *Simulation) OptimizeSchedule() {
 		}
 	}
 
-	fmt.Printf("Total number [%d] of unused streets.\nTotal number [%d] of unused intersections",
+	fmt.Printf("Total number [%d] of unused streets.\nTotal number [%d] of unused intersections\n",
 		totalUnusedStreets,
 		numberOfUnusedIntersections)
 
@@ -122,8 +122,8 @@ func (s *Simulation) Simulate() {
 	fmt.Println("Start Simulation")
 
 	for i := 0; i < s.duration; i++ {
-		s.simulateIntersections(i)
 		s.simulateCars(i)
+		s.simulateIntersections(i)
 	}
 
 	fmt.Println("End Simulation")
@@ -141,7 +141,7 @@ func (s *Simulation) simulateCars(tick int) {
 
 		switch car.state {
 		case Waiting:
-			if s.intersections[intersectionIndex].isLightGreenForCar(car) {
+			if s.intersections[intersectionIndex].canPassThroughIntersection(car) {
 				s.intersections[intersectionIndex].moveCar(car)
 				s.cars[index].move(tick, s.streets)
 			}
@@ -149,7 +149,8 @@ func (s *Simulation) simulateCars(tick int) {
 			if car.atEndOfStreet(tick) {
 				if car.isAtFinish() {
 					s.cars[index].finish(tick)
-				} else if s.intersections[intersectionIndex].isLightGreenForCar(car) {
+				} else if s.intersections[intersectionIndex].canPassThroughIntersection(car) {
+					s.intersections[intersectionIndex].moveCar(car)
 					s.cars[index].move(tick, s.streets)
 				} else {
 					s.cars[index].state = Waiting

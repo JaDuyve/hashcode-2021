@@ -8,6 +8,7 @@ type Intersection struct {
 	streetMap          map[string]int
 	currentGreenStreet int
 	switchLightTick    int
+	carPassed          bool
 }
 
 func (i *Intersection) addStreet(street Street) {
@@ -20,6 +21,8 @@ func (i *Intersection) simulateTick(tick int) {
 		i.currentGreenStreet = (i.currentGreenStreet + 1) % len(i.streets)
 		i.switchLightTick = tick + i.streets[i.currentGreenStreet].greenLightDuration
 	}
+
+	i.carPassed = false
 }
 
 func (i *Intersection) mapStreets() {
@@ -52,12 +55,15 @@ func (i *Intersection) setCurrentSwitchLightTick() {
 	i.switchLightTick = i.streets[i.currentGreenStreet].greenLightDuration
 }
 
-func (i *Intersection) moveCar(car Car) bool {
-	return i.streets[i.currentGreenStreet].moveCarOut(car.id)
+func (i *Intersection) moveCar(car Car) {
+	i.carPassed = true
+	i.streets[i.currentGreenStreet].moveCarOut(car.id)
 }
 
-func (i Intersection) isLightGreenForCar(car Car) bool {
-	return i.streetMap[car.getCurrentStreetName()] == i.currentGreenStreet
+func (i Intersection) canPassThroughIntersection(car Car) bool {
+	return i.streetMap[car.getCurrentStreetName()] == i.currentGreenStreet &&
+		!i.carPassed &&
+		i.streets[i.currentGreenStreet].isQueueEmpty()
 }
 
 func (i *Intersection) addCarToQueue(car Car) {

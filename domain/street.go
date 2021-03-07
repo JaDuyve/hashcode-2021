@@ -37,17 +37,18 @@ func (s *Street) addCar(carId int) {
 	s.carQueue.Enqueue(carId)
 }
 
-func (s *Street) moveCarOut(carId int) bool {
+func (s *Street) moveCarOut(carId int) {
 	if s.isCarInFront(carId) {
 		s.carQueue.Dequeue()
-		return true
 	}
-
-	return false
 }
 
 func (s Street) isCarInFront(carId int) bool {
-	return s.carQueue.Empty() || s.carQueue.Front() == carId
+	return !s.carQueue.Empty() && s.carQueue.Front() == carId
+}
+
+func (s Street) isQueueEmpty() bool {
+	return s.carQueue.Empty()
 }
 
 func (s Street) String() string {
