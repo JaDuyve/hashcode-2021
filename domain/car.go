@@ -40,7 +40,7 @@ func NewCar(input string, id int) Car {
 }
 
 func (c *Car) move(tick int, streets map[string]Street) {
-	if c.numberOfStreets <= c.currentStreetIndex {
+	if c.numberOfStreets-1 <= c.currentStreetIndex {
 		c.finish(tick)
 		return
 	}

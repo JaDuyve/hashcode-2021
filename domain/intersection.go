@@ -34,16 +34,12 @@ func (i *Intersection) setCurrentSwitchLightTick() {
 	i.switchLightTick = i.streets[i.currentGreenStreet].greenLightDuration
 }
 
-func (i Intersection) isStreetGreen(streetName string) bool {
-	return i.streets[i.currentGreenStreet].name == streetName
+func (i *Intersection) moveCar(car Car) bool {
+	return i.streets[i.currentGreenStreet].moveCarOut(car.id)
 }
 
-func (i *Intersection) moveCar(car Car) bool {
-	if i.streetMap[car.getCurrentStreetName()] != i.currentGreenStreet {
-		return false
-	}
-
-	return i.streets[i.currentGreenStreet].moveCarOut(car.id)
+func (i Intersection) isLightGreenForCar(car Car) bool {
+	return i.streetMap[car.getCurrentStreetName()] == i.currentGreenStreet
 }
 
 func (i *Intersection) addCarToQueue(car Car) {

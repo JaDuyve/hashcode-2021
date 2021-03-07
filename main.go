@@ -8,13 +8,16 @@ import (
 )
 
 func main() {
-	filename := "a.txt"
-	input, _ := ioutil.ReadFile("input/" + filename)
-	sim := NewSimulation(strings.Split(string(input), "\n"))
+	files := [...]string{"a.txt", "b.txt", "c.txt", "d.txt", "e.txt", "f.txt"}
 
-	sim.OptimizeSchedule()
-	sim.Simulate()
-	fmt.Printf("Score: [%d]\n", sim.CalculateScore())
+	for _, filename := range files {
+		input, _ := ioutil.ReadFile("input/" + filename)
+		sim := NewSimulation(strings.Split(string(input), "\n"))
 
-	sim.SaveSchedule(filename)
+		sim.OptimizeSchedule()
+		sim.Simulate()
+		fmt.Printf("Score: [%d]\n", sim.CalculateScore())
+
+		sim.SaveSchedule(filename)
+	}
 }

@@ -66,11 +66,6 @@ func (s *Simulation) mapIntersections() {
 	s.intersections = make([]Intersection, s.numberOfIntersections)
 	s.streetIntersectionMap = make(map[string]int)
 
-	for _, car := range s.cars {
-		street := s.streets[car.getCurrentStreetName()]
-		street.addCar(car.id)
-	}
-
 	for _, street := range s.streets {
 		s.intersections[street.endIntersectionId].id = street.endIntersectionId
 		s.intersections[street.endIntersectionId].addStreet(street)
@@ -112,15 +107,18 @@ func (s *Simulation) simulateCars(tick int) {
 
 		switch car.state {
 		case Waiting:
-			fmt.Printf("Car with id [%d] is Waiting.\n", car.id)
-			if s.intersections[intersectionIndex].moveCar(car) {
+			if s.intersections[intersectionIndex].isLightGreenForCar(car) {
+				s.intersections[intersectionIndex].moveCar(car)
 				s.cars[index].move(tick, s.streets)
 			}
 		case Driving:
-			fmt.Printf("Car with id [%d] is Driving.\n", car.id)
 			if car.atEndOfStreet(tick) {
-				s.cars[index].state = Waiting
-				s.intersections[intersectionIndex].addCarToQueue(car)
+				if s.intersections[intersectionIndex].isLightGreenForCar(car) {
+					s.cars[index].move(tick, s.streets)
+				} else {
+					s.cars[index].state = Waiting
+					s.intersections[intersectionIndex].addCarToQueue(car)
+				}
 			}
 		}
 	}
@@ -131,7 +129,7 @@ func (s Simulation) CalculateScore() int {
 
 	for _, car := range s.cars {
 		if car.state == Finished {
-			score += s.bonus + car.finishedAt
+			score += s.bonus + (s.duration - car.finishedAt)
 		}
 	}
 
