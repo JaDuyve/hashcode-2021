@@ -58,7 +58,7 @@ func (s *Simulation) addCars(input []string) {
 	s.cars = make([]Car, 0, len(input))
 
 	for index, line := range input {
-		s.cars = append(s.cars, NewCar(line, index))
+		s.cars = append(s.cars, NewCar(line, index+1))
 	}
 }
 
@@ -76,6 +76,8 @@ func (s *Simulation) mapIntersections() {
 	for index := 0; index < len(s.intersections); index++ {
 		s.intersections[index].mapStreets()
 	}
+
+	fmt.Printf("Map size: [%d], number of streets: [%d]\n", len(s.streetIntersectionMap), s.numberOfStreets)
 }
 
 func (s *Simulation) OptimizeSchedule() {
@@ -116,14 +118,17 @@ func (s *Simulation) OptimizeSchedule() {
 	for i := 0; i < len(s.intersections); i++ {
 		s.intersections[i].setCurrentSwitchLightTick()
 	}
+
+	fmt.Printf("Map size: [%d], number of streets: [%d]\n", len(s.streetIntersectionMap), s.numberOfStreets-totalUnusedStreets)
 }
 
 func (s *Simulation) Simulate() {
 	fmt.Println("Start Simulation")
 
-	for i := 0; i < s.duration; i++ {
-		s.simulateCars(i)
+	s.simulateCars(0)
+	for i := 1; i < s.duration; i++ {
 		s.simulateIntersections(i)
+		s.simulateCars(i)
 	}
 
 	fmt.Println("End Simulation")
@@ -166,7 +171,7 @@ func (s Simulation) CalculateScore() int {
 
 	for _, car := range s.cars {
 		if car.state == Finished {
-			score += s.bonus + (s.duration - car.finishedAt)
+			score = score + s.bonus + (s.duration - car.finishedAt)
 		}
 	}
 

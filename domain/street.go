@@ -34,17 +34,18 @@ func NewStreet(input string) Street {
 }
 
 func (s *Street) addCar(carId int) {
-	s.carQueue.Enqueue(carId)
+	s.carQueue.Add(carId)
 }
 
 func (s *Street) moveCarOut(carId int) {
-	if s.isCarInFront(carId) {
-		s.carQueue.Dequeue()
+	if s.carQueue.Length() != 0 && s.carQueue.Peek().(int) == carId {
+		s.carQueue.Remove()
 	}
 }
 
 func (s Street) isCarInFront(carId int) bool {
-	return !s.carQueue.Empty() && s.carQueue.Front() == carId
+
+	return s.carQueue.Empty() || s.carQueue.Peek().(int) == carId
 }
 
 func (s Street) isQueueEmpty() bool {

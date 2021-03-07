@@ -63,7 +63,7 @@ func (i *Intersection) moveCar(car Car) {
 func (i Intersection) canPassThroughIntersection(car Car) bool {
 	return i.streetMap[car.getCurrentStreetName()] == i.currentGreenStreet &&
 		!i.carPassed &&
-		i.streets[i.currentGreenStreet].isQueueEmpty()
+		i.streets[i.currentGreenStreet].isCarInFront(car.id)
 }
 
 func (i *Intersection) addCarToQueue(car Car) {
