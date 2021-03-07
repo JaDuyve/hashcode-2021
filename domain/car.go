@@ -40,18 +40,13 @@ func NewCar(input string, id int) Car {
 }
 
 func (c *Car) move(tick int, streets map[string]Street) {
-	if c.numberOfStreets-1 <= c.currentStreetIndex {
-		c.finish(tick)
-		return
-	}
-
 	c.currentStreetIndex++
 	c.leaveStreetTick = tick + streets[c.getCurrentStreetName()].duration
 	c.state = Driving
 }
 
 func (c Car) atEndOfStreet(tick int) bool {
-	return c.leaveStreetTick == tick
+	return c.leaveStreetTick <= tick
 }
 
 func (c Car) getCurrentStreetName() string {
@@ -59,8 +54,14 @@ func (c Car) getCurrentStreetName() string {
 }
 
 func (c *Car) finish(tick int) {
-	c.state = Finished
-	c.finishedAt = tick
+	if c.state != Finished {
+		c.state = Finished
+		c.finishedAt = tick
+	}
+}
+
+func (c Car) isAtFinish() bool {
+	return c.numberOfStreets-1 == c.currentStreetIndex || c.state == Finished
 }
 
 func (c Car) String() string {

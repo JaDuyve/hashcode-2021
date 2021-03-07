@@ -9,15 +9,22 @@ import (
 
 func main() {
 	files := [...]string{"a.txt", "b.txt", "c.txt", "d.txt", "e.txt", "f.txt"}
+	var totalScore int
 
 	for _, filename := range files {
+		fmt.Printf("Start file %s.\n", filename)
 		input, _ := ioutil.ReadFile("input/" + filename)
 		sim := NewSimulation(strings.Split(string(input), "\n"))
 
 		sim.OptimizeSchedule()
-		sim.Simulate()
-		fmt.Printf("Score: [%d]\n", sim.CalculateScore())
-
 		sim.SaveSchedule(filename)
+
+		sim.Simulate()
+		score := sim.CalculateScore()
+		totalScore += score
+		fmt.Printf("File: %s, Score: [%d]\n", filename, score)
+
 	}
+
+	fmt.Printf("Total score: [%d]\n", totalScore)
 }

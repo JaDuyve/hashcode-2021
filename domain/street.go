@@ -14,6 +14,7 @@ type Street struct {
 	duration            int
 	greenLightDuration  int
 	carQueue            Queue
+	numberOfPassingCars int
 }
 
 func NewStreet(input string) Street {
@@ -28,6 +29,7 @@ func NewStreet(input string) Street {
 		name:                values[2],
 		duration:            duration,
 		carQueue:            NewQueue(),
+		numberOfPassingCars: 0,
 	}
 }
 

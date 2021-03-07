@@ -30,6 +30,22 @@ func (i *Intersection) mapStreets() {
 	}
 }
 
+func (i *Intersection) incrementPassingCarCounterFor(streetName string) {
+	streetIndex := i.streetMap[streetName]
+	i.streets[streetIndex].numberOfPassingCars++
+}
+
+func (i *Intersection) filterUnusedStreets() {
+
+	for index := len(i.streets) - 1; index < 0; index-- {
+		if i.streets[index].numberOfPassingCars == 0 {
+			i.streets[index] = i.streets[len(i.streets)-1]
+			i.streets = i.streets[:len(i.streets)-1]
+		}
+	}
+
+}
+
 func (i *Intersection) setCurrentSwitchLightTick() {
 	i.switchLightTick = i.streets[i.currentGreenStreet].greenLightDuration
 }

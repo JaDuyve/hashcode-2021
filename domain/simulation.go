@@ -79,6 +79,20 @@ func (s *Simulation) mapIntersections() {
 }
 
 func (s *Simulation) OptimizeSchedule() {
+
+	for _, car := range s.cars {
+		for _, streetName := range car.route[:len(car.route)-1] {
+			intersectionIndex := s.streetIntersectionMap[streetName]
+
+			s.intersections[intersectionIndex].incrementPassingCarCounterFor(streetName)
+		}
+	}
+
+	for index := 0; index < len(s.intersections); index++ {
+		s.intersections[index].filterUnusedStreets()
+		s.intersections[index].mapStreets()
+	}
+
 	for i := 0; i < len(s.intersections); i++ {
 		s.intersections[i].setCurrentSwitchLightTick()
 	}
@@ -113,7 +127,9 @@ func (s *Simulation) simulateCars(tick int) {
 			}
 		case Driving:
 			if car.atEndOfStreet(tick) {
-				if s.intersections[intersectionIndex].isLightGreenForCar(car) {
+				if car.isAtFinish() {
+					s.cars[index].finish(tick)
+				} else if s.intersections[intersectionIndex].isLightGreenForCar(car) {
 					s.cars[index].move(tick, s.streets)
 				} else {
 					s.cars[index].state = Waiting
