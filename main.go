@@ -12,7 +12,7 @@ func main() {
 	var totalScore int
 
 	for _, filename := range files {
-		fmt.Printf("Start file %s.\n", filename)
+		fmt.Printf("------------------------------------------------------\n--- Start file %s ---\n", filename)
 		input, _ := ioutil.ReadFile("input/" + filename)
 		sim := NewSimulation(strings.Split(string(input), "\n"))
 

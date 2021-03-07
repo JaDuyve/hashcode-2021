@@ -35,15 +35,17 @@ func (i *Intersection) incrementPassingCarCounterFor(streetName string) {
 	i.streets[streetIndex].numberOfPassingCars++
 }
 
-func (i *Intersection) filterUnusedStreets() {
-
-	for index := len(i.streets) - 1; index < 0; index-- {
+func (i *Intersection) filterOutUnusedStreets() int {
+	var numberOfUnusedStreet int
+	for index := len(i.streets) - 1; index >= 0; index-- {
 		if i.streets[index].numberOfPassingCars == 0 {
 			i.streets[index] = i.streets[len(i.streets)-1]
 			i.streets = i.streets[:len(i.streets)-1]
+			numberOfUnusedStreet++
 		}
 	}
 
+	return numberOfUnusedStreet
 }
 
 func (i *Intersection) setCurrentSwitchLightTick() {

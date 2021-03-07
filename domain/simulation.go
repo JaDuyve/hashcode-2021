@@ -88,10 +88,30 @@ func (s *Simulation) OptimizeSchedule() {
 		}
 	}
 
-	for index := 0; index < len(s.intersections); index++ {
-		s.intersections[index].filterUnusedStreets()
+	var totalUnusedStreets int
+	var numberOfUnusedIntersections int
+
+	for index := len(s.intersections) - 1; index >= 0; index-- {
+		totalUnusedStreets += s.intersections[index].filterOutUnusedStreets()
 		s.intersections[index].mapStreets()
+
+		if len(s.intersections[index].streets) == 0 {
+			s.intersections[index] = s.intersections[len(s.intersections)-1]
+			s.intersections = s.intersections[:len(s.intersections)-1]
+			numberOfUnusedIntersections++
+		}
 	}
+
+	s.streetIntersectionMap = make(map[string]int)
+	for index, intersection := range s.intersections {
+		for _, street := range intersection.streets {
+			s.streetIntersectionMap[street.name] = index
+		}
+	}
+
+	fmt.Printf("Total number [%d] of unused streets.\nTotal number [%d] of unused intersections",
+		totalUnusedStreets,
+		numberOfUnusedIntersections)
 
 	for i := 0; i < len(s.intersections); i++ {
 		s.intersections[i].setCurrentSwitchLightTick()
